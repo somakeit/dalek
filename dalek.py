@@ -143,13 +143,17 @@ class Dalek:
         self.send(string_to_send)
 
     def send(self, string_to_send):
-        if string_to_send <> self.last_sent:
-            self.last_sent = string_to_send
-            self.ser.write(string_to_send)
-            w = self.ser.inWaiting()
-            if w > 0:
-                print self.ser.read(w)
-            print string_to_send
+        self.last_sent = string_to_send
+
+    def actually_send(self, string_to_send):
+        if not string_to_send:
+            return
+        self.last_sent = string_to_send
+        self.ser.write(string_to_send)
+        print string_to_send
+        w = self.ser.inWaiting()
+        if w > 0:
+            self.ser.read(w)
 
     def play(self, filename):
         print("Play " + filename)
@@ -374,6 +378,7 @@ class Wiimote:
 
     def main(self):
         print "Scanning for wii remotes."
+        last_sent_time = time.time()
         while True:
             if self.wm is None:
                 #Connect wiimote
@@ -391,7 +396,10 @@ class Wiimote:
             else:
                 if time.time() - self.lastaction > 0.4:
                     self.dalek.stop()
-            time.sleep(0.05)
+                if time.time() - last_sent_time > 0.01:
+                    self.dalek.actually_send(self.dalek.last_sent)
+                    last_sent_time = time.time()
+            #time.sleep(0.0001)
         print "Exited Safely"
 
 # Instantiate our class, and start.
