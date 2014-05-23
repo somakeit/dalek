@@ -1,0 +1,12 @@
+[Unit]
+Description=Control of the Dalek via Bluetooth
+
+[Service]
+Type=simple
+User=root
+ExecStart=/usr/bin/python2 /root/dalek/dalek.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
