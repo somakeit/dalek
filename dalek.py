@@ -56,17 +56,22 @@ class Dalek:
 	def motor(self, pair):
 		left, right = pair
 		letters = "abcdefghijklmnop"
-		a = letters[int(floor(abs(left) * 16))]
-		b = letters[int(floor(abs(right) * 16))]
 		if left < 0 and right < 0:
-			c = 'd'
+			direction = 'd'
 		elif right < 0:
-			c = 'c'
+			direction = 'c'
 		elif left < 0:
-			c = 'b'
+			direction = 'b'
 		else:
-			c = 'a'
-		string_to_send = ";" + a + b + c
+			direction = 'a'
+		left = int(floor(abs(left * 256)))
+		right = int(floor(abs(right * 256)))
+		string_to_send = ";M"
+		string_to_send += letters[left >> 4]
+		string_to_send += letters[left & 15]
+		string_to_send += letters[right >> 4]
+		string_to_send += letters[right & 15]
+		string_to_send += direction
 		self.send(string_to_send)
 
 	def send(self, string_to_send):
