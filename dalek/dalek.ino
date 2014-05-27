@@ -56,7 +56,7 @@ void cmdMotor() {
   stage++;
   if (stage == 1) {
     left = (val << 4);
-  } else if (state == 2) {
+  } else if (stage == 2) {
     left += val;
   } else if (stage == 3) {
     right = (val << 4);
