@@ -2,6 +2,8 @@ import cwiid, time, StringIO, sys, socket, os
 from math import log, floor, atan, sqrt, cos, exp, atan2, pi, sin
 import serial
 
+max_speed = 0.3
+
 def do_scale(input, max, divisor=None):
 	if divisor is None: divisor = max
 	if (input > 1): input = 1
@@ -40,6 +42,8 @@ def xy2motors(pair):
 		left *= factor
 	else:
 		right *= factor
+	left *= max_speed
+	right *= max_speed
 	return left, right
 
 class Dalek:
