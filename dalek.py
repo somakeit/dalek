@@ -52,7 +52,7 @@ class Dalek:
 
 	def __init__(self, owner):
 		self.owner = owner
-		self.ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=1)
+		self.ser = serial.Serial('/dev/ttyAMA0', 9600, timeout=1)
 
 	def stop(self):
 		self.send(";aaa")
