@@ -196,10 +196,10 @@ class Wiimote:
 				self.firstPress = True
 				if laststate['buttons'] == cwiid.BTN_B and not state['buttons'] == cwiid.BTN_B:
 					# We were holding B, but no longer!
-					del state['BTN_B']
+					state.pop('BTN_B', None)
 				if (laststate['buttons'] & cwiid.BTN_A and laststate['buttons'] & cwiid.BTN_B) and not (state['buttons'] & cwiid.BTN_A and state['buttons'] & cwiid.BTN_B):
 					# We were holding both A and B, but no longer!
-					del state['BTN_AB']
+					state.pop('BTN_AB', None)
 			if (state["buttons"] > 0) and (time.time() > self.lasttime + self.responsiveness):
 				# Time to process these buttons!
 				self.lasttime = time.time()
