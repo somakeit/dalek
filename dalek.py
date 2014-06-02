@@ -91,7 +91,7 @@ class Wiimote:
 	#Initialize variables
 	reportvals = {"accel":cwiid.RPT_ACC, "button":cwiid.RPT_BTN, "ext":cwiid.RPT_EXT,  "status":cwiid.RPT_STATUS}
 	report={"accel":False, "button":True, "ext": True}
-	state = {"acc":[0, 0, 1], "nunchuck_stick": (0, 0)}
+	state = {"acc":[0, 0, 1], "nunchuck_stick": (130, 130)}
 	lasttime = 0.0
 	laststate = {}
 	lastaction = 0.0
