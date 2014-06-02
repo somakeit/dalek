@@ -1,8 +1,10 @@
+from __future__ import division # I always want float division
 import cwiid, time, StringIO, sys, socket, os
 from math import log, floor, atan, sqrt, cos, exp, atan2, pi, sin
 import serial
 
-max_speed = 0.3
+SPEED_MAX = 15
+SPEED_MIN = 1
 
 def do_scale(input, max, divisor=None):
 	if divisor is None: divisor = max
@@ -42,23 +44,33 @@ def xy2motors(pair):
 		left *= factor
 	else:
 		right *= factor
-	left *= max_speed
-	right *= max_speed
 	return left, right
 
 class Dalek:
 	ser = None
 	last_sent = None
+	speed_multiplier = SPEED_MIN
 
-	def __init__(self, owner):
-		self.owner = owner
+	def __init__(self, wiimote):
+		self.wiimote = wiimote
 		self.ser = serial.Serial('/dev/ttyAMA0', 9600, timeout=1)
+		self.wiimote.led(self.speed_multiplier)
+
+	def online(self):
+		print("Dalek online :)")
+		self.wiimote.led(self.speed_multiplier)
+
+	def offline(self):
+		print("Dalek offline :(")
+		self.stop()
 
 	def stop(self):
 		self.send(";Maaaaa")
 
 	def motor(self, pair):
 		left, right = pair
+		left *= self.speed_multiplier / SPEED_MAX
+		right *= self.speed_multiplier / SPEED_MAX
 		letters = "abcdefghijklmnop"
 		if left < 0 and right < 0:
 			direction = 'd'
@@ -84,11 +96,27 @@ class Dalek:
 			self.ser.write(string_to_send)
 			print string_to_send
 
+	def play(self, filename):
+		print("Play " + filename)
+
+	def increase_speed(self):
+		self.speed_multiplier += 1
+		if self.speed_multiplier > SPEED_MAX:
+			self.speed_multiplier = SPEED_MAX
+		self.wiimote.led(self.speed_multiplier)
+
+	def decrease_speed(self):
+		self.speed_multiplier -= 1
+		if self.speed_multiplier < SPEED_MIN:
+			self.speed_multiplier = SPEED_MIN
+		self.wiimote.led(self.speed_multiplier)
+
 class Wiimote:
 	wm = None
 	dalek = None
 	wii_calibration = None
 	#Initialize variables
+	#reportvals = {"accel":cwiid.RPT_ACC, "button":cwiid.RPT_BTN, "ext":cwiid.RPT_EXT,  "status":cwiid.RPT_STATUS}
 	reportvals = {"accel":cwiid.RPT_ACC, "button":cwiid.RPT_BTN, "ext":cwiid.RPT_EXT,  "status":cwiid.RPT_STATUS}
 	report={"accel":False, "button":True, "ext": True}
 	state = {"acc":[0, 0, 1], "nunchuck_stick": (130, 130)}
@@ -108,18 +136,24 @@ class Wiimote:
 		time.sleep(delay)
 		self.wm.rumble=0
 
+	def led(self, nr):
+		if not self.wm:
+			return
+		self.wm.led = nr #cwiid.LED1_ON | cwiid.LED4_ON
+
 	def wmconnect(self):
 		try:
 			self.wm = cwiid.Wiimote()
 		except:
 			self.wm = None
-			self.dalek.stop()
+			self.dalek.offline()
 			return None
 		print "Connected to a wiimote :)"
 		self.lastaction = time.time()
 		self.rumble()
 		# Wiimote calibration data (cache this)
 		self.wii_calibration = self.wm.get_acc_cal(cwiid.EXT_NONE)
+		self.dalek.online()
 		return self.wm
 
 	def wmcb(self, messages, extra=None):
@@ -132,9 +166,12 @@ class Wiimote:
 			elif message[0] == cwiid.MESG_ERROR:
 				if message[1] == cwiid.ERROR_DISCONNECT:
 					self.wm = None
-					self.dalek.stop()
+					self.dalek.offline()
 					continue
 				else:
+					self.wm.close()
+					self.wm = None
+					self.dalek.offline()
 					print "ERROR: ", message[1]
 			elif message[0] == cwiid.MESG_ACC:
 				state["acc"] = message[1]
@@ -146,55 +183,63 @@ class Wiimote:
 				print "Unknown message!", message
 				continue
 			self.dalek.motor(xy2motors(state["nunchuck_stick"]))
-			continue
-			# Stuff from MythPyWii
 			laststate = self.laststate
 			if ('buttons' in laststate) and (laststate['buttons'] <> state['buttons']):
+				# Buttons changed
 				if state['buttons'] == 0:
 					self.maxButtons = 0
 				elif state['buttons'] < self.maxButtons:
-					continue
+					continue # You released a button!
 				else:
 					self.maxButtons = state['buttons']
 				self.lasttime = 0
 				self.firstPress = True
 				if laststate['buttons'] == cwiid.BTN_B and not state['buttons'] == cwiid.BTN_B:
+					# We were holding B, but no longer!
 					del state['BTN_B']
-					if not (state['buttons'] & cwiid.BTN_B):
-						self.ms.cmd('play speed normal')
 				if (laststate['buttons'] & cwiid.BTN_A and laststate['buttons'] & cwiid.BTN_B) and not (state['buttons'] & cwiid.BTN_A and state['buttons'] & cwiid.BTN_B):
+					# We were holding both A and B, but no longer!
 					del state['BTN_AB']
-					#self.ms.cmd('play speed normal')
-			if self.ms.ok() and (self.wm is not None) and (state["buttons"] > 0) and (time.time() > self.lasttime+self.responsiveness):
+			if (state["buttons"] > 0) and (time.time() > self.lasttime + self.responsiveness):
+				# Time to process these buttons!
 				self.lasttime = time.time()
 				wasFirstPress = False
 				if self.firstPress:
 					wasFirstPress = True
 					self.lasttime = self.lasttime + self.firstPressDelay
 					self.firstPress = False
+
+				# ----------------------------------------------
 				# Stuff that doesn't need roll/etc calculations
+
+				# Sound effects
 				if state["buttons"] == cwiid.BTN_HOME:
-					self.ms.cmd('key escape')
+					self.dalek.play("home.mp3")
 				if state["buttons"] == cwiid.BTN_A:
-					self.ms.cmd('key enter')
-				if state["buttons"] == cwiid.BTN_MINUS:
-					self.ms.cmd('key d')
+					self.dalek.play("btn_a.mp3")
 				if state["buttons"] == cwiid.BTN_UP:
-					self.ms.cmd('key up')
+					self.dalek.play("btn_up.mp3")
 				if state["buttons"] == cwiid.BTN_DOWN:
-					self.ms.cmd('key down')
+					self.dalek.play("btn_down.mp3")
 				if state["buttons"] == cwiid.BTN_LEFT:
-					self.ms.cmd('key left')
+					self.dalek.play("btn_left.mp3")
 				if state["buttons"] == cwiid.BTN_RIGHT:
-					self.ms.cmd('key right')
-				if state["buttons"] == cwiid.BTN_PLUS:
-					self.ms.cmd('key p')
+					self.dalek.play("btn_right.mp3")
 				if state["buttons"] == cwiid.BTN_1:
-					self.ms.cmd('key i')
+					self.dalek.play("btn_1.mp3")
 				if state["buttons"] == cwiid.BTN_2:
-					self.ms.cmd('key m')
+					self.dalek.play("btn_2.mp3")
+
+				# Speeds
+				if state["buttons"] == cwiid.BTN_MINUS:
+					self.dalek.decrease_speed()
+				if state["buttons"] == cwiid.BTN_PLUS:
+					self.dalek.increase_speed()
+
+				# ----------------------------------------------
 				# Do we need to calculate roll, etc?
 				# Currently only BTN_B needs this.
+				""" # Python doesn't have block comments, so hack it with this.
 				calcAcc = state["buttons"] & cwiid.BTN_B
 				if calcAcc:
 					# Calculate the roll/etc.
@@ -210,7 +255,7 @@ class Wiimote:
 					#print "X: %f, Y: %f, Z: %f; R: %f, P: %f; B: %d	\r" % (X, Y, Z, roll, pitch, state["buttons"]),
 					sys.stdout.flush()
 				if state["buttons"] & cwiid.BTN_B and state["buttons"] & cwiid.BTN_LEFT:
-					self.ms.cmd('play seek beginning')
+					self.dalek.cmd('play seek beginning')
 				if state["buttons"] & cwiid.BTN_B and state["buttons"] & cwiid.BTN_A:
 					speed=do_scale(roll/3.14159, 20, 25)
 					if (speed<-10): speed = -10
@@ -233,7 +278,7 @@ class Wiimote:
 					if speed <> 0:
 						self.rumble(.05)
 					if cmd is not None and cmd:
-						self.ms.raw(cmd)
+						self.dalek.raw(cmd)
 				if state["buttons"] == cwiid.BTN_B:
 					speed=do_scale(roll/3.14159, 8, 13)
 					state['BTN_B'] = speed
@@ -261,10 +306,12 @@ class Wiimote:
 					else:
 						cmd = None
 					if cmd is not None:
-						self.ms.raw(cmd)
+						self.dalek.raw(cmd)
+				"""
 			self.laststate = state.copy() #NOTE TO SELF: REMEMBER .copy() !!!
 
 	def main(self):
+		print "Scanning for wii remotes."
 		while True:
 			if self.wm is None:
 				#Connect wiimote
