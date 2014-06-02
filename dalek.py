@@ -55,7 +55,7 @@ class Dalek:
 		self.ser = serial.Serial('/dev/ttyAMA0', 9600, timeout=1)
 
 	def stop(self):
-		self.send(";aaa")
+		self.send(";Maaaaa")
 
 	def motor(self, pair):
 		left, right = pair
