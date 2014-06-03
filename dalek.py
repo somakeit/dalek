@@ -4,7 +4,7 @@ from math import log, floor, atan, sqrt, cos, exp, atan2, pi, sin
 import serial
 
 SPEED_MAX = 15
-SPEED_MIN = 1
+SPEED_MIN = 6
 
 def do_scale(input, max, divisor=None):
 	if divisor is None: divisor = max
