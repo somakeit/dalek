@@ -11,45 +11,91 @@ def do_scale(input, max, divisor=None):
 	if (input > 1): input = 1
 	if (input < -1): input = -1
 	input = int(input * divisor)
-	if input>max: input = max
+	if input > max: input = max
 	elif input < -max: input = -max
 	return input
 
 def xy2motors(pair):
 	x, y = pair
-	x_center = 130.0
-	x_min = 35.0
-	x_ratio = (x - x_center) / (x_center - x_min)
-	y_center = 129.0
-	y_min = 34.0
-	y_ratio = (y - y_center) / (y_center - y_min)
-	if abs(x_ratio) < 0.1:
-		x_ratio = 0.0
-	if abs(y_ratio) < 0.1:
-		y_ratio = 0.0
+	center_tolerance = 5
+	x_center = 128.0
+	x_min = 40.0
+	y_center = 128.0
+	y_min = 40.0
 
-	r = sqrt(x_ratio ** 2 + y_ratio ** 2)
-	angle = atan2(y_ratio, x_ratio)
-	speed = r
-	if speed >= 1:
-		speed = 0.99999
-	if angle < 0.0:
-		speed = -speed
-	direction = abs(angle) - pi/2.0
-	#print x_ratio, y_ratio, r, angle, speed, direction
-	left = speed
-	right = speed
-	factor = cos(direction)
-	if direction > 0.0:
-		left *= factor
+	# Prevent jitter on centred nunchucks
+	if abs(x - x_center) < center_tolerance:
+		x = x_center
+	if abs(y - y_center) < center_tolerance:
+		y = y_center
+
+	x_ratio = (x - x_center) / (x_center - x_min)
+	y_ratio = (y - y_center) / (y_center - y_min)
+	# clamp to -1..1
+	x_ratio = min(1.0, max(-1.0, x_ratio))
+	y_ratio = min(1.0, max(-1.0, y_ratio))
+
+	if x_ratio == y_ratio == 0:
+		left = 0
+		right = 0
 	else:
-		right *= factor
+		r = sqrt(x_ratio ** 2 + y_ratio ** 2)
+		angle = atan2(y_ratio, x_ratio)
+		# Take angle about y axis instead of x.
+		angle = pi/2.0 - angle
+
+		speed = r
+		if speed >= 1:
+			speed = 1
+
+		if angle < -pi/2.0:
+			left = -speed
+		elif angle < -pi/4.0:
+			pos = (angle - (-pi/2.0)) / (pi / 4.0)
+			start = - speed
+			stop = speed / 2
+			left = start + (stop - start) * pos
+		elif angle <= 0:
+			left = cos(angle) * speed
+		elif angle < pi/2.0:
+			left = speed
+		elif angle < 3*pi/4.0:
+			left = cos(angle - pi/2.0) * speed
+		else:
+			pos = (angle - 3*pi/4.0) / (pi / 4.0)
+			start = speed / 2
+			stop = - speed
+			left = start + (stop - start) * pos
+
+		if angle > pi/2.0:
+			right = -speed
+		elif angle > pi/4.0:
+			pos = (angle - (pi/4.0)) / (pi / 4.0)
+			start = speed / 2
+			stop = - speed
+			right = start + (stop - start) * pos
+		elif angle >= 0:
+			right = cos(angle) * speed
+		elif angle > -pi/2.0:
+			right = speed
+		elif angle > -3*pi/4.0:
+			right = cos(angle + pi/2.0) * speed
+		else:
+			pos = (angle + pi) / (pi / 4.0)
+			start = - speed
+			stop = speed / 2
+			right = start + (stop - start) * pos
+
+	# clamp to -1..1
+	left = min(1.0, max(-1.0, left)) * 0.9999999
+	right = min(1.0, max(-1.0, right)) * 0.9999999
+
 	return left, right
 
 class Dalek:
 	ser = None
 	last_sent = None
-	speed_multiplier = SPEED_MIN
+	speed_multiplier = floor(SPEED_MIN + (SPEED_MAX - SPEED_MIN)/2)
 
 	def __init__(self, wiimote):
 		self.wiimote = wiimote
