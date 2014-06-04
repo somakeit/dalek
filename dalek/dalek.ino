@@ -1,159 +1,76 @@
-enum Mode {
-  NONE,
-  MOTOR,
-  LED
-};
+#define L_FWD 5
+#define L_BAK 6
+#define R_FWD 9
+#define R_BAK 10
 
-// Uncomment next line if you're Benjie
-//#define L298N_MODE 1
+//Errors
+#define BAD_COMMAND    1
+#define OUT_OF_BOUNDS  2
+#define UNKNOWN        99
 
-#ifdef L298N_MODE
-int leftForwardPin = 12;
-int leftBackwardPin = 11;
-int leftEnablePin = 10;
-int rightForwardPin = 8;
-int rightBackwardPin = 7;
-int rightEnablePin = 6;
-#else
-int leftForwardPin = 5;
-int leftBackwardPin = 6;
-int rightForwardPin = 9;
-int rightBackwardPin = 10;
-#endif
-int ledPin = 13;
+int setMotors(int l, int r);
 
-int left = 0;
-int right = 0;
-unsigned int stage = 0;
-unsigned char a = 'a';
-unsigned char p = 'p';
-int val = 0;
-Mode mode = NONE;
-
-// the setup routine runs once when you press reset:
-void setup()  {
-  // declare pin 9 to be an output:
-  pinMode(ledPin, OUTPUT);
-  pinMode(leftForwardPin, OUTPUT);
-  pinMode(leftBackwardPin, OUTPUT);
-  pinMode(rightForwardPin, OUTPUT);
-  pinMode(rightBackwardPin, OUTPUT);
-#ifdef L298N_MODE
-  pinMode(leftEnablePin, OUTPUT);
-  pinMode(rightEnablePin, OUTPUT);
-  analogWrite(leftForwardPin, 0);
-  analogWrite(leftBackwardPin, 0);
-  analogWrite(leftEnablePin, 0);
-  analogWrite(rightForwardPin, 0);
-  analogWrite(rightBackwardPin, 0);
-  analogWrite(leftEnablePin, 0);
-#else
-  analogWrite(leftForwardPin, 255);
-  analogWrite(leftBackwardPin, 255);
-  analogWrite(rightForwardPin, 255);
-  analogWrite(rightBackwardPin, 255);
-#endif
+char command[32];
+/* Commands:
+ "M -120 120\n"
+  |||    |  |__ends with newline
+  |||    |____right motor power as signed decimal string, ~half forward here.
+  |||_________left motor power, ~half reverse here.
+  ||__________NOTE: space delimiters are semi-optional
+  |___________M for motor set command, no preceding chars allowed*/
+  
+void setup() {
+  TCCR0B = TCCR0B & 0b11111000 | 1; //set PWM ports 5 & 6 to 62.5KHz AFFECTS MILIS AND DELAY
+  TCCR1B = TCCR1B & 0b11111000 | 1; //set PWM ports 9 & 10 to ~31KHz
+  
+  pinMode(L_FWD, OUTPUT);
+  pinMode(L_BAK, OUTPUT);
+  pinMode(R_FWD, OUTPUT);
+  pinMode(R_BAK, OUTPUT);
+  
   Serial.begin(9600);
+  /* Workaround TCCR0B setting and set timeout to 20ms, only hit if newline
+   char lost, fast timout desired to unblock loop() and try again. It takes
+   just over 2ms to fill the 32char buffer @ 9600 baud. */
+  Serial.setTimeout(1280); 
 }
 
-void reset() {
-  stage = 0;
-  mode = NONE;
-}
-
-void cmdLED() {
-  if (val == '0') {
-    digitalWrite(ledPin, LOW);
-  } else if (val == '1') {
-    digitalWrite(ledPin, HIGH);
+void loop() {
+  byte len = Serial.readBytesUntil('\n', command, 31);
+  command[len] = 0; //terminate string (srsly, arduino?)
+  if (len) {
+    int l = 0;
+    int r = 0;
+    int rc = UNKNOWN;
+    if (2 == sscanf(command, "M %d %d", &l, &r)) {
+      rc = setMotors(l, r);
+      Serial.println(rc, DEC);
+    } else {
+      Serial.println(BAD_COMMAND, DEC);
+    }
   }
-  reset();
 }
 
-void cmdMotor() {
-  val = val - a;
-  if ((val < 0) || (val > p - a)) {
-    reset();
-    return;
+int setMotors(int l, int r) {
+  if ((l > 255) or (l < -255) or (r > 255) or (r < -255)) {
+    return(OUT_OF_BOUNDS);
   }
-  stage++;
-  if (stage == 1) {
-    left = (val << 4);
-  } else if (stage == 2) {
-    left += val;
-  } else if (stage == 3) {
-    right = (val << 4);
-  } else if (stage == 4) {
-    right += val;
+  
+  if (l >= 0) {
+    analogWrite(L_BAK, 0);
+    analogWrite(L_FWD, l);
   } else {
-    if ((val == 1) || (val == 3)) {
-      left = -left;
-    }
-    if ((val == 2) || (val == 3)) {
-      right = -right;
-    }
-    if (val > 3) {
-      reset();
-      return; // Invalid
-    }
-#if L298N_MODE
-    if (left >= 0) {
-      digitalWrite(leftForwardPin, HIGH);
-      digitalWrite(leftBackwardPin, LOW);
-    } else {
-      digitalWrite(leftForwardPin, LOW);
-      digitalWrite(leftBackwardPin, HIGH);
-    }
-
-    if (right >= 0) {
-      digitalWrite(rightForwardPin, HIGH);
-      digitalWrite(rightBackwardPin, LOW);
-    } else {
-      digitalWrite(rightForwardPin, LOW);
-      digitalWrite(rightBackwardPin, HIGH);
-    }
-    analogWrite(leftEnablePin, abs(left));
-    analogWrite(rightEnablePin, abs(right));
-#else
-    if (left >= 0) {
-      analogWrite(leftForwardPin, 255 - left);
-      analogWrite(leftBackwardPin, 255);
-    } else {
-      analogWrite(leftForwardPin, 255);
-      analogWrite(leftBackwardPin, left);
-    }
-
-    if (right >= 0) {
-      analogWrite(rightForwardPin, 255 - right);
-      analogWrite(rightBackwardPin, 255);
-    } else {
-      analogWrite(rightForwardPin, 255);
-      analogWrite(rightBackwardPin, right);
-    }
-#endif
-    reset();
+    analogWrite(L_FWD, 0);
+    analogWrite(L_BAK, abs(l));
   }
-}
-
-void loop()  {
-  if (Serial.available() <= 0) {
-    delay(1);
-    return;
+  
+  if (r >= 0) {
+    analogWrite(R_BAK, 0);
+    analogWrite(R_FWD, r);
+  } else {
+    analogWrite(R_FWD, 0);
+    analogWrite(R_BAK, abs(r));
   }
-  val = Serial.read();
-  if (mode == MOTOR) {
-    cmdMotor();
-    return;
-  } else if (mode == LED) {
-    cmdLED();
-    return;
-  } else if (mode == NONE) {
-    if (val == 'M') {
-      mode = MOTOR;
-    } else if (val == 'L') {
-      mode = LED;
-    }
-    return;
-  }
-  reset();
+  
+  return(0);
 }
