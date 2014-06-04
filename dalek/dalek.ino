@@ -30,8 +30,8 @@ void setup() {
   
   Serial.begin(9600);
   /* Workaround TCCR0B setting and set timeout to 20ms, only hit if newline
-   char lost, fast timout desired to unblock loop() and try again. It takes
-   just over 2ms to fill the 32char buffer @ 9600 baud. */
+   char lost or no data received, fast timout desired to unblock loop() and
+   try again. It takes just over 2ms to fill the 32char buffer @ 9600 baud.*/
   Serial.setTimeout(1280); 
 }
 
