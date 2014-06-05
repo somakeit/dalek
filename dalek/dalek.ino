@@ -9,7 +9,9 @@ __asm volatile ("nop");
 #define BUFFER_SIZE 64
 
 // Uncomment next line if you're Benjie
-#define L298N_MODE 1
+//#define L298N_MODE 1
+// Uncomment next line if you're Bracken
+//#define SN754410_MODE 1
 
 #ifdef L298N_MODE
 int leftForwardPin = 12;
@@ -52,6 +54,11 @@ void setup()  {
   analogWrite(rightForwardPin, 0);
   analogWrite(rightBackwardPin, 0);
   analogWrite(leftEnablePin, 0);
+#elif defined SN754410_MODE
+  analogWrite(leftForwardPin, 0);
+  analogWrite(leftBackwardPin, 0);
+  analogWrite(rightForwardPin, 0);
+  analogWrite(rightBackwardPin, 0);
 #else
   analogWrite(leftForwardPin, 255);
   analogWrite(leftBackwardPin, 255);
@@ -101,6 +108,22 @@ int cmdMotor(char *str, int len) {
   }
   analogWrite(leftEnablePin, abs(left));
   analogWrite(rightEnablePin, abs(right));
+#elif defined SN754410_MODE
+  if (left >= 0) {
+    analogWrite(leftBackwardPin, 0);
+    analogWrite(leftForwardPin, left);
+  } else {
+    analogWrite(leftForwardPin, 0);
+    analogWrite(leftBackwardPin, left);
+  }
+
+  if (right >= 0) {
+    analogWrite(rightBackwardPin, 0);
+    analogWrite(rightForwardPin, right);
+  } else {
+    analogWrite(rightForwardPin, 0);
+    analogWrite(rightBackwardPin, right);
+  }
 #else
   if (left >= 0) {
     analogWrite(leftForwardPin, 255 - left);
