@@ -27,6 +27,7 @@ char buffer[BUFFER_SIZE+1];
 #define E_INCORRECT_PAYLOAD_LENGTH 1
 #define E_UNKNOWN_COMMAND 2
 #define E_INVALID_COMMAND 3
+#define E_INVALID_PAYLOAD 4
 
 // the setup routine runs once when you press reset:
 void setup()  {
@@ -61,7 +62,10 @@ int cmdLED(char *str, int len) {
     digitalWrite(ledPin, LOW);
   } else if (str[0] == '1') {
     digitalWrite(ledPin, HIGH);
+  } else
+    return E_INVALID_PAYLOAD;
   }
+  return SUCCESS;
 }
 
 // Command 'M', format: "+a0-ff": 161/256 left forwards, 256/256 right backwards
@@ -69,7 +73,10 @@ int cmdMotor(char *str, int len) {
   if (len != 6) return E_INCORRECT_PAYLOAD_LENGTH;
   int left = 0;
   int right = 0;
-  sscanf(str, "%-2x%-2x", &left, &right);
+  int vars = sscanf(str, "%-2x%-2x", &left, &right);
+  if (vars < 2) { // < 2 includes EOF which is -1
+    return E_INVALID_PAYLOAD;
+  }
 #if L298N_MODE
   if (left >= 0) {
     digitalWrite(leftForwardPin, HIGH);
@@ -105,6 +112,7 @@ int cmdMotor(char *str, int len) {
     analogWrite(rightBackwardPin, right);
   }
 #endif
+  return SUCCESS;
 }
 
 // Shrinks buffer by shifting the characters count bytes left.
