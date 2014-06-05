@@ -23,6 +23,11 @@ int ledPin = 13;
 int bufferLength = 0;
 char buffer[BUFFER_SIZE+1];
 
+#define SUCCESS 0
+#define E_INCORRECT_PAYLOAD_LENGTH 1
+#define E_UNKNOWN_COMMAND 2
+#define E_INVALID_COMMAND 3
+
 // the setup routine runs once when you press reset:
 void setup()  {
   memset(buffer, 0, BUFFER_SIZE+1);
@@ -50,8 +55,8 @@ void setup()  {
 }
 
 // Command 'L': 0 - off, 1 - on
-void cmdLED(char *str, int len) {
-  if (len != 1) return;
+int cmdLED(char *str, int len) {
+  if (len != 1) return E_INCORRECT_PAYLOAD_LENGTH;
   if (str[0] == '0') {
     digitalWrite(ledPin, LOW);
   } else if (str[0] == '1') {
@@ -60,8 +65,8 @@ void cmdLED(char *str, int len) {
 }
 
 // Command 'M', format: "+a0-ff": 161/256 left forwards, 256/256 right backwards
-void cmdMotor(char *str, int len) {
-  if (len != 6) return;
+int cmdMotor(char *str, int len) {
+  if (len != 6) return E_INCORRECT_PAYLOAD_LENGTH;
   int left = 0;
   int right = 0;
   sscanf(str, "%-2x%-2x", &left, &right);
@@ -121,14 +126,17 @@ void loop()  {
   char *newlinePos;
   while (newlinePos = (char *)memchr(buffer, '\n', bufferLength)) {
     newlinePos[0] = '\0'; // Change \n to \0 temporarily
+    int result = E_UNKNOWN_COMMAND;
     if (buffer[0] == 'M') {
-      cmdMotor(buffer + 1, (newlinePos - buffer) - 1);
+      result = cmdMotor(buffer + 1, (newlinePos - buffer) - 1);
     } else if (buffer[0] == 'L') {
-      cmdLED(buffer + 1, (newlinePos - buffer) - 1);
+      result = cmdLED(buffer + 1, (newlinePos - buffer) - 1);
     }
+    Serial.println(result, HEX);
     shiftBuffer((newlinePos - buffer) + 1); // +1 because we want to lose the \0 too
   }
   if (bufferLength == BUFFER_SIZE) {
     shiftBuffer(BUFFER_SIZE); // No newlines, buffer full: start over
+    Serial.println(E_INVALID_COMMAND, HEX);
   }
 }
