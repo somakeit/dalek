@@ -86,7 +86,12 @@ int cmdMotor(char *str, int len) {
   if (len != 6) return E_INCORRECT_PAYLOAD_LENGTH;
   int left = 0;
   int right = 0;
-  int vars = sscanf(str, "%-2x%-2x", &left, &right);
+  Serial.print("<");
+  Serial.print(str);
+  Serial.println(">");
+  int vars = sscanf(str, "%3x%3x", &left, &right);
+  Serial.println(left, DEC);
+  Serial.println(right, DEC);
   if (vars < 2) { // < 2 includes EOF which is -1
     return E_INVALID_PAYLOAD;
   }
