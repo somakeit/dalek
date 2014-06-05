@@ -1,3 +1,5 @@
+// Maximum command length, including initial command code and terminating \n
+// (2 bytes more than the maximum payload)
 #define BUFFER_SIZE 64
 
 // Uncomment next line if you're Benjie
@@ -24,7 +26,6 @@ char buffer[BUFFER_SIZE+1];
 // the setup routine runs once when you press reset:
 void setup()  {
   memset(buffer, 0, BUFFER_SIZE+1);
-  // declare pin 9 to be an output:
   pinMode(ledPin, OUTPUT);
   pinMode(leftForwardPin, OUTPUT);
   pinMode(leftBackwardPin, OUTPUT);
@@ -48,6 +49,7 @@ void setup()  {
   Serial.begin(9600);
 }
 
+// Command 'L': 0 - off, 1 - on
 void cmdLED(char *str, int len) {
   if (len != 1) return;
   if (str[0] == '0') {
@@ -57,6 +59,7 @@ void cmdLED(char *str, int len) {
   }
 }
 
+// Command 'M', format: "+a0-ff": 161/256 left forwards, 256/256 right backwards
 void cmdMotor(char *str, int len) {
   if (len != 6) return;
   int left = 0;
@@ -99,9 +102,10 @@ void cmdMotor(char *str, int len) {
 #endif
 }
 
+// Shrinks buffer by shifting the characters count bytes left.
 void shiftBuffer(int count) {
   memmove(buffer, buffer+count, BUFFER_SIZE - count);
-  memset(buffer + BUFFER_SIZE - count, 0, count+1);
+  memset(buffer + BUFFER_SIZE - count, 0, count + 1);
   bufferLength -= count;
 }
 
@@ -118,14 +122,13 @@ void loop()  {
   while (newlinePos = (char *)memchr(buffer, '\n', bufferLength)) {
     newlinePos[0] = '\0'; // Change \n to \0 temporarily
     if (buffer[0] == 'M') {
-      cmdMotor(buffer+1, newlinePos - buffer - 1);
+      cmdMotor(buffer + 1, (newlinePos - buffer) - 1);
     } else if (buffer[0] == 'L') {
-      cmdLED(buffer+1, newlinePos - buffer - 1);
+      cmdLED(buffer + 1, (newlinePos - buffer) - 1);
     }
-    shiftBuffer((newlinePos - buffer) + 1);
+    shiftBuffer((newlinePos - buffer) + 1); // +1 because we want to lose the \0 too
   }
   if (bufferLength == BUFFER_SIZE) {
-    // No newlines, buffer full: start over
-    shiftBuffer(BUFFER_SIZE);
+    shiftBuffer(BUFFER_SIZE); // No newlines, buffer full: start over
   }
 }
