@@ -62,7 +62,7 @@ int cmdLED(char *str, int len) {
     digitalWrite(ledPin, LOW);
   } else if (str[0] == '1') {
     digitalWrite(ledPin, HIGH);
-  } else
+  } else {
     return E_INVALID_PAYLOAD;
   }
   return SUCCESS;
