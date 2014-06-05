@@ -1,3 +1,9 @@
+//Workaround arduino pre-processor bug/s
+#if 1
+__asm volatile ("nop");
+#endif
+
+
 // Maximum command length, including initial command code and terminating \n
 // (2 bytes more than the maximum payload)
 #define BUFFER_SIZE 64
@@ -62,7 +68,7 @@ int cmdLED(char *str, int len) {
     digitalWrite(ledPin, LOW);
   } else if (str[0] == '1') {
     digitalWrite(ledPin, HIGH);
-  } else
+  } else {
     return E_INVALID_PAYLOAD;
   }
   return SUCCESS;
@@ -77,7 +83,7 @@ int cmdMotor(char *str, int len) {
   if (vars < 2) { // < 2 includes EOF which is -1
     return E_INVALID_PAYLOAD;
   }
-#if L298N_MODE
+#ifdef L298N_MODE
   if (left >= 0) {
     digitalWrite(leftForwardPin, HIGH);
     digitalWrite(leftBackwardPin, LOW);
