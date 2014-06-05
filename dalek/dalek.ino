@@ -119,7 +119,7 @@ int cmdMotor(char *str, int len) {
     analogWrite(leftForwardPin, left);
   } else {
     analogWrite(leftForwardPin, 0);
-    analogWrite(leftBackwardPin, left);
+    analogWrite(leftBackwardPin, abs(left));
   }
 
   if (right >= 0) {
@@ -127,7 +127,7 @@ int cmdMotor(char *str, int len) {
     analogWrite(rightForwardPin, right);
   } else {
     analogWrite(rightForwardPin, 0);
-    analogWrite(rightBackwardPin, right);
+    analogWrite(rightBackwardPin, abs(right));
   }
 #else
   if (left >= 0) {
