@@ -117,7 +117,7 @@ class Dalek:
 		left, right = pair
 		left *= self.speed_multiplier / SPEED_MAX
 		right *= self.speed_multiplier / SPEED_MAX
-		letters = "abcdefghijklmnop"
+		letters = "0123456789abcdef"
 		if left < 0 and right < 0:
 			direction = 'd'
 		elif right < 0:
