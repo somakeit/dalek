@@ -77,7 +77,7 @@ int cmdMotor(char *str, int len) {
   if (vars < 2) { // < 2 includes EOF which is -1
     return E_INVALID_PAYLOAD;
   }
-#if L298N_MODE
+#ifdef L298N_MODE
   if (left >= 0) {
     digitalWrite(leftForwardPin, HIGH);
     digitalWrite(leftBackwardPin, LOW);
