@@ -39,6 +39,10 @@ char buffer[BUFFER_SIZE+1];
 
 // the setup routine runs once when you press reset:
 void setup()  {
+  //increase PWM freq beyond audible range
+  TCCR0B = TCCR0B & 0b11111000 | 1; //set PWM ports 5 & 6 to 62.5KHz AFFECTS MILIS AND DELAY
+  TCCR1B = TCCR1B & 0b11111000 | 1; //set PWM ports 9 & 10 to ~31KHz
+  
   memset(buffer, 0, BUFFER_SIZE+1);
   pinMode(ledPin, OUTPUT);
   pinMode(leftForwardPin, OUTPUT);
