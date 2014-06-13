@@ -4,7 +4,7 @@ from math import log, floor, atan, sqrt, cos, exp, atan2, pi, sin
 import serial
 
 SPEED_MAX = 15
-SPEED_MIN = 6
+SPEED_MIN = 1
 
 def do_scale(input, max, divisor=None):
 	if divisor is None: divisor = max
@@ -99,7 +99,7 @@ class Dalek:
 
 	def __init__(self, wiimote):
 		self.wiimote = wiimote
-		self.ser = serial.Serial('/dev/ttyAMA0', 9600, timeout=1)
+		self.ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=1)
 		self.wiimote.led(self.speed_multiplier)
 
 	def online(self):
@@ -111,7 +111,7 @@ class Dalek:
 		self.stop()
 
 	def stop(self):
-		self.send(";Maaaaa")
+		self.send("M00000\n")
 
 	def motor(self, pair):
 		left, right = pair
@@ -119,27 +119,31 @@ class Dalek:
 		right *= self.speed_multiplier / SPEED_MAX
 		letters = "0123456789abcdef"
 		if left < 0 and right < 0:
-			direction = 'd'
+			direction = '3'
 		elif right < 0:
-			direction = 'c'
+			direction = '2'
 		elif left < 0:
-			direction = 'b'
+			direction = '1'
 		else:
-			direction = 'a'
+			direction = '0'
 		left = int(floor(abs(left * 256)))
 		right = int(floor(abs(right * 256)))
-		string_to_send = ";M"
+		string_to_send = "M"
 		string_to_send += letters[left >> 4]
 		string_to_send += letters[left & 15]
 		string_to_send += letters[right >> 4]
 		string_to_send += letters[right & 15]
 		string_to_send += direction
+		string_to_send += "\n"
 		self.send(string_to_send)
 
 	def send(self, string_to_send):
 		if string_to_send <> self.last_sent:
 			self.last_sent = string_to_send
 			self.ser.write(string_to_send)
+			w = self.ser.inWaiting()
+			if w > 0:
+				self.ser.read(w)
 			print string_to_send
 
 	def play(self, filename):

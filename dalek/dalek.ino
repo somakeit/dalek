@@ -87,12 +87,19 @@ int cmdLED(char *str, int len) {
 
 // Command 'M', format: "+a0-ff": 161/256 left forwards, 256/256 right backwards
 int cmdMotor(char *str, int len) {
-  if (len != 6) return E_INCORRECT_PAYLOAD_LENGTH;
+  if (len != 5) return E_INCORRECT_PAYLOAD_LENGTH;
   int left = 0;
   int right = 0;
-  int vars = sscanf(str, "%3x%3x", &left, &right);
+  int sign = 0;
+  int vars = sscanf(str, "%2x%2x%x", &left, &right, &sign);
   if (vars < 2) { // < 2 includes EOF which is -1
     return E_INVALID_PAYLOAD;
+  }
+  if (sign & 1) {
+    left = -left;
+  }
+  if (sign & 2) {
+    right = -right;
   }
 #ifdef L298N_MODE
   if (left >= 0) {
