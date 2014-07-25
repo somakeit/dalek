@@ -3,6 +3,8 @@ import cwiid, time, StringIO, sys, socket, os
 from math import log, floor, atan, sqrt, cos, exp, atan2, pi, sin
 import serial
 
+os.chdir(os.path.dirname(os.path.realpath(__file__)))
+
 SPEED_MAX = 15
 SPEED_MIN = 1
 
@@ -96,6 +98,7 @@ class Dalek:
 	ser = None
 	last_sent = None
 	speed_multiplier = floor(SPEED_MIN + (SPEED_MAX - SPEED_MIN)/2)
+	last_play = time.time()
 
 	def __init__(self, wiimote):
 		self.wiimote = wiimote
@@ -148,6 +151,10 @@ class Dalek:
 
 	def play(self, filename):
 		print("Play " + filename)
+		if time.time() - self.last_play < 2:
+			return
+		self.last_play = time.time()
+		os.system("/usr/bin/mpg123 sounds/" + filename + " &")
 
 	def increase_speed(self):
 		self.speed_multiplier += 1
@@ -265,9 +272,11 @@ class Wiimote:
 
 				# Sound effects
 				if state["buttons"] == cwiid.BTN_HOME:
-					self.dalek.play("home.mp3")
+					self.dalek.play("btn_home.mp3")
 				if state["buttons"] == cwiid.BTN_A:
 					self.dalek.play("btn_a.mp3")
+				if state["buttons"] == cwiid.BTN_B:
+					self.dalek.play("btn_b.mp3")
 				if state["buttons"] == cwiid.BTN_UP:
 					self.dalek.play("btn_up.mp3")
 				if state["buttons"] == cwiid.BTN_DOWN:
