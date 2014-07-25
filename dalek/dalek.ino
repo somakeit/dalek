@@ -31,6 +31,8 @@ int ledPin = 13;
 int bufferLength = 0;
 char buffer[BUFFER_SIZE+1];
 
+long last_command_time = 0;
+
 #define SUCCESS 0
 #define E_INCORRECT_PAYLOAD_LENGTH 1
 #define E_UNKNOWN_COMMAND 2
@@ -70,6 +72,7 @@ void setup()  {
   analogWrite(rightBackwardPin, 255);
 #endif
   Serial.begin(9600);
+  last_command_time = millis();
 }
 
 // Command 'L': 0 - off, 1 - on
@@ -101,6 +104,11 @@ int cmdMotor(char *str, int len) {
   if (sign & 2) {
     right = -right;
   }
+  go(left, right);
+  return SUCCESS;
+}
+
+void go(int left, int right) {
 #ifdef L298N_MODE
   if (left >= 0) {
     digitalWrite(leftForwardPin, HIGH);
@@ -152,7 +160,6 @@ int cmdMotor(char *str, int len) {
     analogWrite(rightBackwardPin, right);
   }
 #endif
-  return SUCCESS;
 }
 
 // Shrinks buffer by shifting the characters count bytes left.
@@ -164,7 +171,12 @@ void shiftBuffer(int count) {
 
 void loop()  {
   int availableBytes = Serial.available();
-  if (availableBytes <= 0) return;
+  if (availableBytes <= 0) {
+    if (millis() - last_command_time > 100) {
+      go(0, 0);
+    }
+    return;
+  }
   int maxLen = BUFFER_SIZE - bufferLength;
   if (availableBytes > maxLen) { // Ensure we don't overflow buffer
     availableBytes = maxLen;
@@ -187,4 +199,5 @@ void loop()  {
     shiftBuffer(BUFFER_SIZE); // No newlines, buffer full: start over
     Serial.println(E_INVALID_COMMAND, HEX);
   }
+  last_command_time = millis();
 }
