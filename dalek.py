@@ -229,6 +229,7 @@ class Wiimote:
 				state["nunchuck_acc"] = message[1]['acc']
 				state["nunchuck_buttons"] = message[1]['buttons']
 				state["nunchuck_stick"] = message[1]['stick']
+				self.lastaction = time.time()
 			else:
 				print "Unknown message!", message
 				continue
@@ -376,6 +377,9 @@ class Wiimote:
 				else:
 					print "Retrying... "
 					print
+			else:
+				if time.time() - self.lastaction > 0.4:
+					self.dalek.stop()
 			time.sleep(0.05)
 		print "Exited Safely"
 
