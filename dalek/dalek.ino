@@ -3,10 +3,13 @@
 __asm volatile ("nop");
 #endif
 
-
+// Because we're adjusting the PWM speeds (see TCCR0B and TCCR1B) we're also adjusting the millis() and similar clocks so we must remember to multiply durations by this!
+#define TIME_MULTIPLIER 64
 // Maximum command length, including initial command code and terminating \n
 // (2 bytes more than the maximum payload)
 #define BUFFER_SIZE 64
+// Watchdog timer duration in milliseconds
+#define WATCHDOG_TIMER_DURATION 100
 
 // Uncomment next line if you're Benjie
 //#define L298N_MODE 1
@@ -172,7 +175,7 @@ void shiftBuffer(int count) {
 void loop()  {
   int availableBytes = Serial.available();
   if (availableBytes <= 0) {
-    if (millis() - last_command_time > 100) {
+    if (millis() - last_command_time > WATCHDOG_TIMER_DURATION * TIME_MULTIPLIER) {
       go(0, 0);
     }
     return;
