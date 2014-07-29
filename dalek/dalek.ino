@@ -74,7 +74,7 @@ void setup()  {
   analogWrite(rightForwardPin, 255);
   analogWrite(rightBackwardPin, 255);
 #endif
-  Serial.begin(9600);
+  Serial.begin(115200);
   last_command_time = millis();
 }
 
