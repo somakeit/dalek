@@ -1,0 +1,254 @@
+solid NSD Support 2013 MKII
+facet normal 0.0 0.0 -1.0
+outer loop
+vertex 0.0 0.0 0.0
+vertex -0.0454545454545456 1.0 0.0
+vertex 0.0 1.0 0.0
+endloop
+endfacet
+facet normal 0.0 0.0 -1.0
+outer loop
+vertex -7.88854041574817 73.9045598160657 0.0
+vertex -8.04042437405675 76.0067373956761 0.0
+vertex -8.0 76.0 0.0
+endloop
+endfacet
+facet normal -0.0712470499879096 -0.997458699830735 0.0
+outer loop
+vertex 0.0 -2.0 0.0
+vertex -14.0 -1.0 -6.0
+vertex 0.0 -2.0 -6.0
+endloop
+endfacet
+facet normal -0.0712470499879096 -0.997458699830735 0.0
+outer loop
+vertex -14.0 -1.0 -6.0
+vertex 0.0 -2.0 0.0
+vertex -14.0 -1.0 0.0
+endloop
+endfacet
+facet normal 1.0 -0.0 -0.0
+outer loop
+vertex 0.0 0.0 -6.0
+vertex 0.0 -2.0 0.0
+vertex 0.0 -2.0 -6.0
+endloop
+endfacet
+facet normal 1.0 -0.0 -0.0
+outer loop
+vertex 0.0 -2.0 0.0
+vertex 0.0 0.0 -6.0
+vertex 0.0 0.0 0.0
+endloop
+endfacet
+facet normal 0.9989685402103 0.0454076609186501 -0.0
+outer loop
+vertex -0.0454545454545456 1.0 -6.0
+vertex 0.0 0.0 0.0
+vertex 0.0 0.0 -6.0
+endloop
+endfacet
+facet normal 0.9989685402103 0.0454076609186501 -0.0
+outer loop
+vertex 0.0 0.0 0.0
+vertex -0.0454545454545456 1.0 -6.0
+vertex -0.0454545454545456 1.0 0.0
+endloop
+endfacet
+facet normal -0.0 -0.0 1.0
+outer loop
+vertex -14.0 -1.0 -6.0
+vertex -5.5 29.0 -6.0
+vertex -14.0 79.5 -6.0
+endloop
+endfacet
+facet normal -0.0 -0.0 1.0
+outer loop
+vertex -5.5 29.0 -6.0
+vertex -14.0 -1.0 -6.0
+vertex 0.0 -2.0 -6.0
+endloop
+endfacet
+facet normal -0.0 -0.0 1.0
+outer loop
+vertex -14.0 79.5 -6.0
+vertex -5.5 29.0 -6.0
+vertex -8.22056452830464 78.5 -6.0
+endloop
+endfacet
+facet normal -0.0 -0.0 1.0
+outer loop
+vertex -8.22056452830464 78.5 -6.0
+vertex -5.5 29.0 -6.0
+vertex -7.88854041574817 73.9045598160657 -6.0
+endloop
+endfacet
+facet normal -0.0 -0.0 1.0
+outer loop
+vertex -5.5 29.0 -6.0
+vertex 0.0 -2.0 -6.0
+vertex -1.0 22.0 -6.0
+endloop
+endfacet
+facet normal -0.0 -0.0 1.0
+outer loop
+vertex -1.0 22.0 -6.0
+vertex 0.0 -2.0 -6.0
+vertex -0.0454545454545456 1.0 -6.0
+endloop
+endfacet
+facet normal -0.0 -0.0 1.0
+outer loop
+vertex -0.0454545454545456 1.0 -6.0
+vertex 0.0 -2.0 -6.0
+vertex 0.0 0.0 -6.0
+endloop
+endfacet
+facet normal 0.9989685402103 0.04540766091865 -0.0
+outer loop
+vertex -1.0 22.0 -6.0
+vertex -0.0454545454545456 1.0 0.0
+vertex -0.0454545454545456 1.0 -6.0
+endloop
+endfacet
+facet normal 0.9989685402103 0.04540766091865 -0.0
+outer loop
+vertex -0.0454545454545456 1.0 0.0
+vertex -1.0 22.0 -6.0
+vertex -1.0 22.0 0.0
+endloop
+endfacet
+facet normal 0.841178475376553 0.540757591313499 -0.0
+outer loop
+vertex -5.5 29.0 -6.0
+vertex -1.0 22.0 0.0
+vertex -1.0 22.0 -6.0
+endloop
+endfacet
+facet normal 0.841178475376553 0.540757591313499 -0.0
+outer loop
+vertex -1.0 22.0 0.0
+vertex -5.5 29.0 -6.0
+vertex -5.5 29.0 0.0
+endloop
+endfacet
+facet normal 0.998588327594573 0.0531164004039666 -0.0
+outer loop
+vertex -7.88854041574817 73.9045598160657 -6.0
+vertex -5.5 29.0 0.0
+vertex -5.5 29.0 -6.0
+endloop
+endfacet
+facet normal 0.998588327594573 0.0531164004039666 -0.0
+outer loop
+vertex -5.5 29.0 0.0
+vertex -7.88854041574817 73.9045598160657 -6.0
+vertex -7.88854041574817 73.9045598160657 0.0
+endloop
+endfacet
+facet normal 0.997400087372074 0.0720629288204405 2.58394546905459e-018
+outer loop
+vertex -8.22056452830464 78.5 -6.0
+vertex -7.88854041574817 73.9045598160657 0.0
+vertex -7.88854041574817 73.9045598160657 -6.0
+endloop
+endfacet
+facet normal 0.997400087372074 0.0720629288204405 2.58394546905459e-018
+outer loop
+vertex -7.88854041574817 73.9045598160657 0.0
+vertex -8.22056452830464 78.5 -6.0
+vertex -8.04042437405675 76.0067373956761 0.0
+endloop
+endfacet
+facet normal 0.997400087372074 0.0720629288204405 2.58394546905459e-018
+outer loop
+vertex -8.04042437405675 76.0067373956761 0.0
+vertex -8.22056452830464 78.5 -6.0
+vertex -8.22056452830464 78.5 0.0
+endloop
+endfacet
+facet normal 0.170493940032916 0.985358724735338 -0.0
+outer loop
+vertex -14.0 79.5 0.0
+vertex -8.22056452830464 78.5 -6.0
+vertex -14.0 79.5 -6.0
+endloop
+endfacet
+facet normal 0.170493940032916 0.985358724735338 -0.0
+outer loop
+vertex -8.22056452830464 78.5 -6.0
+vertex -14.0 79.5 0.0
+vertex -8.22056452830464 78.5 0.0
+endloop
+endfacet
+facet normal -1.0 0.0 0.0
+outer loop
+vertex -14.0 79.5 0.0
+vertex -14.0 -1.0 -6.0
+vertex -14.0 -1.0 0.0
+endloop
+endfacet
+facet normal -1.0 0.0 0.0
+outer loop
+vertex -14.0 -1.0 -6.0
+vertex -14.0 79.5 0.0
+vertex -14.0 79.5 -6.0
+endloop
+endfacet
+facet normal -0.0 -0.0 1.0
+outer loop
+vertex -14.0 -1.0 0.0
+vertex -5.5 29.0 0.0
+vertex -14.0 79.5 0.0
+endloop
+endfacet
+facet normal -0.0 -0.0 1.0
+outer loop
+vertex -5.5 29.0 0.0
+vertex -14.0 -1.0 0.0
+vertex 0.0 -2.0 0.0
+endloop
+endfacet
+facet normal -0.0 -0.0 1.0
+outer loop
+vertex -14.0 79.5 0.0
+vertex -5.5 29.0 0.0
+vertex -8.22056452830464 78.5 0.0
+endloop
+endfacet
+facet normal -0.0 -0.0 1.0
+outer loop
+vertex -8.22056452830464 78.5 0.0
+vertex -5.5 29.0 0.0
+vertex -8.04042437405675 76.0067373956761 0.0
+endloop
+endfacet
+facet normal -0.0 -0.0 1.0
+outer loop
+vertex -8.04042437405675 76.0067373956761 0.0
+vertex -5.5 29.0 0.0
+vertex -7.88854041574817 73.9045598160657 0.0
+endloop
+endfacet
+facet normal -0.0 -0.0 1.0
+outer loop
+vertex -5.5 29.0 0.0
+vertex 0.0 -2.0 0.0
+vertex -1.0 22.0 0.0
+endloop
+endfacet
+facet normal -0.0 -0.0 1.0
+outer loop
+vertex -1.0 22.0 0.0
+vertex 0.0 -2.0 0.0
+vertex -0.0454545454545456 1.0 0.0
+endloop
+endfacet
+facet normal -0.0 -0.0 1.0
+outer loop
+vertex -0.0454545454545456 1.0 0.0
+vertex 0.0 -2.0 0.0
+vertex 0.0 0.0 0.0
+endloop
+endfacet
+endsolid NSD Support 2013 MKII
