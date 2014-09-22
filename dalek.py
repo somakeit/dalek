@@ -185,25 +185,6 @@ class Dalek:
             self.speed_multiplier = SPEED_MIN
         self.wiimote.led(self.speed_multiplier)
 
-	def play(self, filename):
-		print("Play " + filename)
-		if time.time() - self.last_play < 2:
-			return
-		self.last_play = time.time()
-		os.system("/usr/bin/mpg123 sounds/" + filename + " &")
-
-	def increase_speed(self):
-		self.speed_multiplier += 1
-		if self.speed_multiplier > SPEED_MAX:
-			self.speed_multiplier = SPEED_MAX
-		self.wiimote.led(self.speed_multiplier)
-
-	def decrease_speed(self):
-		self.speed_multiplier -= 1
-		if self.speed_multiplier < SPEED_MIN:
-			self.speed_multiplier = SPEED_MIN
-		self.wiimote.led(self.speed_multiplier)
-
 class Wiimote:
     wm = None
     dalek = None
