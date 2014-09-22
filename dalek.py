@@ -3,8 +3,10 @@ import cwiid, time, StringIO, sys, socket, os
 from math import log, floor, atan, sqrt, cos, exp, atan2, pi, sin
 import serial
 import wiringpi2 as wiringpi  
+import pygame
 
 wiringpi.wiringPiSetup()  
+pygame.mixer.init()
 
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
 MODE_INPUT=0
@@ -165,8 +167,11 @@ class Dalek:
         #print("Play " + filename)
         if time.time() - self.last_play < 2:
             return
+        if pygame.mixer.music.get_busy() == True:
+            return
         self.last_play = time.time()
-        os.system("/usr/bin/mpg123 sounds/" + filename + ".wav &")
+        pygame.mixer.music.load("sounds/" + filename + ".wav")
+        pygame.mixer.music.play()
 
     def light(self, onoff):
         #print("Play " + filename)
