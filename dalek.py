@@ -2,9 +2,15 @@ from __future__ import division # I always want float division
 import cwiid, time, StringIO, sys, socket, os
 from math import log, floor, atan, sqrt, cos, exp, atan2, pi, sin
 import serial
+import wiringpi2 as wiringpi  
+
+wiringpi.wiringPiSetup()  
 
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
-os.system("/usr/bin/gpio mode 0 out")
+MODE_INPUT=0
+MODE_OUTPUT=1
+MODE_PWM=2
+wiringpi.pinMode(0, MODE_OUTPUT)
 
 SPEED_MAX = 15
 SPEED_MIN = 1
@@ -170,8 +176,7 @@ class Dalek:
         self.lightstatus = onoff
         self.last_play = time.time()
         value = "1" if onoff else "0"
-        print("GPIO WRITE 0 " + value)
-        os.system("/usr/bin/gpio write 0 " + value + " &")
+        wiringpi.digitalWrite(0, (1 if onoff else 0))
 
     def increase_speed(self):
         self.speed_multiplier += 1
@@ -184,6 +189,25 @@ class Dalek:
         if self.speed_multiplier < SPEED_MIN:
             self.speed_multiplier = SPEED_MIN
         self.wiimote.led(self.speed_multiplier)
+
+	def play(self, filename):
+		print("Play " + filename)
+		if time.time() - self.last_play < 2:
+			return
+		self.last_play = time.time()
+		os.system("/usr/bin/mpg123 sounds/" + filename + " &")
+
+	def increase_speed(self):
+		self.speed_multiplier += 1
+		if self.speed_multiplier > SPEED_MAX:
+			self.speed_multiplier = SPEED_MAX
+		self.wiimote.led(self.speed_multiplier)
+
+	def decrease_speed(self):
+		self.speed_multiplier -= 1
+		if self.speed_multiplier < SPEED_MIN:
+			self.speed_multiplier = SPEED_MIN
+		self.wiimote.led(self.speed_multiplier)
 
 class Wiimote:
     wm = None
