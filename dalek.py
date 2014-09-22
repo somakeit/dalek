@@ -4,6 +4,7 @@ from math import log, floor, atan, sqrt, cos, exp, atan2, pi, sin
 import serial
 
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
+os.system("/usr/bin/gpio mode 0 out")
 
 SPEED_MAX = 15
 SPEED_MIN = 1
@@ -99,10 +100,11 @@ class Dalek:
     last_sent = None
     speed_multiplier = floor(SPEED_MIN + (SPEED_MAX - SPEED_MIN)/2)
     last_play = time.time()
+    lightstatus = False
 
     def __init__(self, wiimote):
         self.wiimote = wiimote
-        self.ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=1)
+        self.ser = serial.Serial('/dev/ttyUSB0', 115200, timeout=1)
         self.wiimote.led(self.speed_multiplier)
 
     def online(self):
@@ -132,10 +134,8 @@ class Dalek:
         left = int(floor(abs(left * 256)))
         right = int(floor(abs(right * 256)))
         string_to_send = "M"
-        #string_to_send += "+"
         string_to_send += letters[left >> 4]
         string_to_send += letters[left & 15]
-        #string_to_send += "+"
         string_to_send += letters[right >> 4]
         string_to_send += letters[right & 15]
         string_to_send += direction
@@ -150,17 +150,28 @@ class Dalek:
             return
         self.last_sent = string_to_send
         self.ser.write(string_to_send)
-        print string_to_send
+        #print string_to_send
         w = self.ser.inWaiting()
         if w > 0:
             self.ser.read(w)
 
     def play(self, filename):
-        print("Play " + filename)
+        #print("Play " + filename)
         if time.time() - self.last_play < 2:
             return
         self.last_play = time.time()
-        os.system("/usr/bin/mpg123 sounds/" + filename + " &")
+        os.system("/usr/bin/mpg123 sounds/" + filename + ".wav &")
+
+    def light(self, onoff):
+        #print("Play " + filename)
+        if self.lightstatus == onoff:
+            print("NOP")
+            return
+        self.lightstatus = onoff
+        self.last_play = time.time()
+        value = "1" if onoff else "0"
+        print("GPIO WRITE 0 " + value)
+        os.system("/usr/bin/gpio write 0 " + value + " &")
 
     def increase_speed(self):
         self.speed_multiplier += 1
@@ -264,6 +275,10 @@ class Wiimote:
                 if (laststate['buttons'] & cwiid.BTN_A and laststate['buttons'] & cwiid.BTN_B) and not (state['buttons'] & cwiid.BTN_A and state['buttons'] & cwiid.BTN_B):
                     # We were holding both A and B, but no longer!
                     state.pop('BTN_AB', None)
+                if (not (laststate['buttons'] & cwiid.BTN_A)) and (state['buttons'] & cwiid.BTN_A):
+                    self.dalek.light(True)
+                if (laststate['buttons'] & cwiid.BTN_A) and (not (state['buttons'] & cwiid.BTN_A)):
+                    self.dalek.light(False)
             if (state["buttons"] > 0) and (time.time() > self.lasttime + self.responsiveness):
                 # Time to process these buttons!
                 self.lasttime = time.time()
@@ -278,23 +293,23 @@ class Wiimote:
 
                 # Sound effects
                 if state["buttons"] == cwiid.BTN_HOME:
-                    self.dalek.play("btn_home.mp3")
-                if state["buttons"] == cwiid.BTN_A:
-                    self.dalek.play("btn_a.mp3")
+                    self.dalek.play("btn_home")
+                #if state["buttons"] == cwiid.BTN_A:
+                #    self.dalek.play("btn_a")
                 if state["buttons"] == cwiid.BTN_B:
-                    self.dalek.play("btn_b.mp3")
+                    self.dalek.play("btn_b")
                 if state["buttons"] == cwiid.BTN_UP:
-                    self.dalek.play("btn_up.mp3")
+                    self.dalek.play("btn_up")
                 if state["buttons"] == cwiid.BTN_DOWN:
-                    self.dalek.play("btn_down.mp3")
+                    self.dalek.play("btn_down")
                 if state["buttons"] == cwiid.BTN_LEFT:
-                    self.dalek.play("btn_left.mp3")
+                    self.dalek.play("btn_left")
                 if state["buttons"] == cwiid.BTN_RIGHT:
-                    self.dalek.play("btn_right.mp3")
+                    self.dalek.play("btn_right")
                 if state["buttons"] == cwiid.BTN_1:
-                    self.dalek.play("btn_1.mp3")
+                    self.dalek.play("btn_1")
                 if state["buttons"] == cwiid.BTN_2:
-                    self.dalek.play("btn_2.mp3")
+                    self.dalek.play("btn_2")
 
                 # Speeds
                 if state["buttons"] == cwiid.BTN_MINUS:
@@ -396,12 +411,13 @@ class Wiimote:
             else:
                 if time.time() - self.lastaction > 0.4:
                     self.dalek.stop()
-                if time.time() - last_sent_time > 0.01:
-                    self.dalek.actually_send(self.dalek.last_sent)
-                    last_sent_time = time.time()
-            #time.sleep(0.0001)
+            if time.time() - last_sent_time >= 0.001:
+                self.dalek.actually_send(self.dalek.last_sent)
+                last_sent_time = time.time()
+            time.sleep(0.001)
         print "Exited Safely"
 
 # Instantiate our class, and start.
 inst = Wiimote()
 inst.main()
+
