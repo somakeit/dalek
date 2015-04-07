@@ -60,7 +60,7 @@
   </font>
  </defs>
  <defs class="TextShapeIndex">
-  <g ooo:slide="id1" ooo:id-list="id3 id4 id5 id6 id7 id8 id9 id10 id11 id12 id13 id14 id15 id16 id17 id18 id19 id20 id21 id22 id23 id24 id25 id26 id27 id28 id29 id30 id31 id32 id33 id34 id35 id36 id37 id38 id39 id40 id41 id42 id43 id44 id45 id46 id47 id48 id49 id50 id51 id52 id53 id54"/>
+  <g ooo:slide="id1" ooo:id-list="id3 id4 id5 id6 id7 id8 id9 id10 id11 id12 id13 id14 id15 id16 id17 id18 id19 id20 id21 id22 id23 id24 id25 id26 id27 id28 id29 id30 id31 id32 id33 id34 id35 id36 id37 id38 id39 id40 id41 id42 id43 id44 id45 id46 id47 id48 id49 id50 id51 id52 id53 id54 id55 id56"/>
  </defs>
  <defs class="EmbeddedBulletChars">
   <g id="bullet-char-template(57356)" transform="scale(0.00048828125,-0.00048828125)">
@@ -415,8 +415,8 @@
      </g>
      <g class="com.sun.star.drawing.LineShape">
       <g id="id49">
-       <path fill="none" stroke="rgb(87,157,28)" d="M 5200,23200 L 6848,9627"/>
-       <path fill="rgb(87,157,28)" stroke="none" d="M 6900,9200 L 6697,9629 6995,9665 6900,9200 Z"/>
+       <path fill="none" stroke="rgb(87,157,28)" d="M 5200,23200 L 7236,9625"/>
+       <path fill="rgb(87,157,28)" stroke="none" d="M 7300,9200 L 7085,9623 7382,9667 7300,9200 Z"/>
       </g>
      </g>
      <g class="com.sun.star.drawing.LineShape">
@@ -447,6 +447,18 @@
       <g id="id54">
        <path fill="none" stroke="rgb(87,157,28)" d="M 8200,9100 L 9369,10937"/>
        <path fill="rgb(87,157,28)" stroke="none" d="M 9600,11300 L 9485,10840 9232,11001 9600,11300 Z"/>
+      </g>
+     </g>
+     <g class="com.sun.star.drawing.LineShape">
+      <g id="id55">
+       <path fill="none" stroke="rgb(87,157,28)" d="M 6200,8800 L 4655,12799"/>
+       <path fill="rgb(87,157,28)" stroke="none" d="M 4500,13200 L 4802,12834 4522,12726 4500,13200 Z"/>
+      </g>
+     </g>
+     <g class="com.sun.star.drawing.LineShape">
+      <g id="id56">
+       <path fill="none" stroke="rgb(87,157,28)" d="M 6800,9200 L 5075,18877"/>
+       <path fill="rgb(87,157,28)" stroke="none" d="M 5000,19300 L 5227,18883 4931,18831 5000,19300 Z"/>
       </g>
      </g>
     </g>
