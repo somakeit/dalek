@@ -5,6 +5,7 @@ ALL_PINS = [PWM_PIN]
 pwm = None
 
 def init():
+    global pwm
     GPIO.setmode(GPIO.BCM)
 
     for port in ALL_PINS:
@@ -14,4 +15,6 @@ def init():
     pwm.start(0)
 
 def write(value):
-    pwm.ChangeDutyCycle(value * 100)
+    val = round(value * 100.0)
+    print(val)
+    pwm.ChangeDutyCycle(val)
