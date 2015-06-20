@@ -16,5 +16,4 @@ def init():
 
 def write(value):
     val = round(value * 100.0)
-    print(val)
     pwm.ChangeDutyCycle(val)
