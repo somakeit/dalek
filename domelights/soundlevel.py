@@ -3,7 +3,10 @@
 import pwm
 from peak_monitor import PeakMonitor
 
-SINK_NAME = 'alsa_output.usb-0d8c_C-Media_USB_Headphone_Set-00-Set.analog-stereo'
+with open('../SOUNDCARD', 'r') as file:
+    SOUNDCARD = file.read().strip()
+SINK_NAME = 'alsa_output.' + SOUNDCARD + '.analog-stereo'
+print("DOME SINK: " + SINK_NAME)
 METER_RATE = 128    # Hz
 SMOOTHING = 4.0
 FILTER_LENGTH = 10
@@ -19,7 +22,7 @@ def main():
 
     for sample in PeakMonitor(SINK_NAME, METER_RATE):
         # samples range from 0 to 127
-        scaled_sample = (sample - 40)/50.0
+        scaled_sample = (sample - 20)/40.0
         scaled_sample = min(1.0, max(0.0, scaled_sample))
 
         # Filter out crackles and other spikes
